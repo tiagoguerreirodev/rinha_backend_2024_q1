@@ -2,9 +2,8 @@ package server
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/tiagoguerreirodev/rinha_backend_2024_q1/controller"
+	"github.com/tiagoguerreirodev/rinha_backend_2024_q1/src/controller"
 	"log"
-	"os"
 )
 
 func Init() {
@@ -15,7 +14,7 @@ func Init() {
 	router.POST("/clientes/:id/transacoes", clientController.PostTransactions)
 	router.GET("/clientes/:id/extrato", clientController.GetBankStatement)
 
-	if err := router.Run(os.Getenv("API_URI")); err != nil {
+	if err := router.Run(":8080"); err != nil {
 		log.Fatalf("Failed to run application: %v\n", err)
 	}
 }

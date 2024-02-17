@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/tiagoguerreirodev/rinha_backend_2024_q1/database"
+	"github.com/tiagoguerreirodev/rinha_backend_2024_q1/src/database"
 	"time"
 )
 
