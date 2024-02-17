@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-
 	database.Init()
+	defer database.GetDatabase().Close()
 	server.Init()
 }
