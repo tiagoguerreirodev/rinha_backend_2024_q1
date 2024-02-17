@@ -7,11 +7,16 @@ import (
 	"os"
 )
 
+var dbPool *pgxpool.Pool
+
 func Init() {
-	conn, err := pgxpool.New(context.Background(), os.Getenv("API_DATABASE_URI"))
+	var err error
+	dbPool, err = pgxpool.New(context.Background(), os.Getenv("API_DATABASE_URI"))
 	if err != nil {
 		log.Fatalf("Failed to connect: %v\n", err)
 	}
+}
 
-	defer conn.Close()
+func GetDatabase() *pgxpool.Pool {
+	return dbPool
 }
