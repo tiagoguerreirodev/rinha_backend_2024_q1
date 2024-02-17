@@ -8,6 +8,7 @@ services:
     hostname: api01
     environment:
       - DB_HOSTNAME=db
+      - API_DATABASE_URI=postgres://rinha:rinha@db:5432/rinha?loggerLevel=OFF
 
     # Não é necessário expor qualquer porta além da porta do load balancer,
     # mas é comum as pessoas o fazerem para testarem suas APIs e conectarem
@@ -51,8 +52,8 @@ services:
     image: postgres:latest
     hostname: db
     environment:
-      - POSTGRES_PASSWORD=123
-      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=rinha
+      - POSTGRES_USER=rinha
       - POSTGRES_DB=rinha
     ports:
       - "5432:5432"
