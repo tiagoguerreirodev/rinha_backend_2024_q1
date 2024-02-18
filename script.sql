@@ -1,6 +1,6 @@
 -- Coloque scripts iniciais aqui
 CREATE TABLE clientes (
-    id SMALLSERIAL,
+    id SMALLSERIAL UNIQUE,
     nome varchar(50) NOT NULL,
     limite integer NOT NULL,
     saldo integer DEFAULT 0

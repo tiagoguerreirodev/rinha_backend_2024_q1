@@ -1,29 +1,71 @@
 package service
 
 import (
-	"context"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/tiagoguerreirodev/rinha_backend_2024_q1/src/cache"
+	"github.com/tiagoguerreirodev/rinha_backend_2024_q1/src/constant"
 	"github.com/tiagoguerreirodev/rinha_backend_2024_q1/src/database"
+	"github.com/tiagoguerreirodev/rinha_backend_2024_q1/src/model"
+	"log"
+	"math"
 	"time"
 )
 
-type TransactionRequest struct {
-	Value       int16  `json:"valor"`
-	Type        string `json:"tipo"`
-	Description string `json:"descricao"`
+var c *cache.AllCache
+
+func init() {
+	c = cache.GetCache()
 }
 
-var db *pgxpool.Pool
+func PostTransaction(request *model.TransactionRequest, userId string) (*model.TransactionResponse, error) {
+	client := c.ReadClient(userId)
 
-func PostTransaction(request *TransactionRequest, userId string) {
-	db = database.GetDatabase()
-	db.QueryRow(
-		context.Background(),
-		"insert into transaction values ($1, $2, $3, $4, $5)",
-		userId,
-		request.Value,
-		request.Type,
-		request.Description,
-		time.Now(),
-	)
+	var transactionValue int
+
+	if request.Type == "d" {
+		transactionValue = -request.Value
+	} else {
+		transactionValue = request.Value
+	}
+
+	updatedBalance := client.Balance + transactionValue
+
+	if request.Type == "d" && math.Abs(float64(updatedBalance)) > float64(client.Limit) {
+		return nil, constant.ErrBalanceExceedsLimit
+	}
+
+	if dbErr := database.SaveTransaction(request, &userId); dbErr != nil {
+		log.Fatalf("Could not insert transaction: %v\n", dbErr)
+	}
+
+	res := &model.TransactionResponse{
+		Limite: client.Limit,
+		Saldo:  updatedBalance,
+	}
+
+	c.UpdateClient(userId, &model.User{
+		Balance: res.Saldo,
+		Limit:   res.Limite,
+	})
+
+	return res, nil
+}
+
+func GetStatement(id string) *model.BankStatementResponse {
+	client := c.ReadClient(id)
+
+	transactions, err := database.GetBankStatement(&id)
+	if err != nil {
+		log.Fatalf("Could not retrieve bank statement: %v\n", err)
+	}
+
+	statement := &model.Statement{
+		Total:  client.Balance,
+		Data:   time.Now().String(),
+		Limite: client.Limit,
+	}
+
+	return &model.BankStatementResponse{
+		Saldo:      statement,
+		Transacoes: transactions,
+	}
 }
