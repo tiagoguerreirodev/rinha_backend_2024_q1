@@ -7,6 +7,6 @@ COPY . ./
 
 RUN go mod download
 
-RUN CGO_ENABLED=0 GOOS=linux go build src/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -tags=jsoniter src/main.go
 
 CMD ["./main"]

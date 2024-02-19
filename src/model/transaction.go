@@ -2,16 +2,16 @@ package model
 
 type Transaction struct {
 	UserId      string `json:"userId"`
-	Value       int16  `json:"value"`
 	Type        string `json:"type"`
 	Description string `json:"description"`
 	CreatedAt   string `json:"createdAt"`
+	Value       int16  `json:"value"`
 }
 
 type TransactionRequest struct {
-	Value       int    `json:"valor"`
 	Type        string `json:"tipo"`
 	Description string `json:"descricao"`
+	Value       int    `json:"valor"`
 }
 
 type TransactionResponse struct {
@@ -25,7 +25,7 @@ type BankStatementResponse struct {
 }
 
 type Statement struct {
-	Total  int    `json:"total"`
 	Data   string `json:"data_extrato"`
+	Total  int    `json:"total"`
 	Limite int    `json:"limite"`
 }

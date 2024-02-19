@@ -37,12 +37,39 @@ func SaveTransaction(request *model.TransactionRequest, userId *string) error {
 	return err
 }
 
+func GetUser(id string) (*model.User, error) {
+	var saldo, limite int
+
+	err := dbPool.QueryRow(
+		context.Background(),
+		"select saldo, limite from clientes WHERE id = $1",
+		id,
+	).Scan(&saldo, &limite)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.User{
+		Balance: saldo,
+		Limit:   limite,
+	}, nil
+}
+
+func UpdateUserBalance(id string, newBalance *int) error {
+	_, err := dbPool.Exec(
+		context.Background(),
+		"update clientes set saldo = $1 where id = $2",
+		newBalance,
+		id,
+	)
+	return err
+}
+
 func GetBankStatement(userId *string) ([]*model.Transaction, error) {
-	var transactions []*model.Transaction
 
 	rows, err := dbPool.Query(
 		context.Background(),
-		"select valor, tipo, descricao, created_at from transacoes where user_id = $1 limit 10",
+		"select valor, tipo, descricao, created_at from transacoes where user_id = $1 order by created_at desc limit 10",
 		userId,
 	)
 
@@ -52,6 +79,7 @@ func GetBankStatement(userId *string) ([]*model.Transaction, error) {
 		return nil, err
 	}
 
+	transactions := make([]*model.Transaction, 0, 10)
 	for rows.Next() {
 		var valor int16
 		var tipo, descricao string
